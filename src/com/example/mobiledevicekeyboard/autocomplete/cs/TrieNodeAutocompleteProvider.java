@@ -18,21 +18,29 @@ public class TrieNodeAutocompleteProvider implements AutocompleteProvider {
 	
 	@Override
 	public List<Candidate> getWords(String Fragment) {
+		//keep case consistent since case doesn't change the word
+		Fragment = Fragment.toLowerCase();
 		//start by finding the correct node to start searching for options in
 		TrieNodeCandidate startNode = root.getStartNode(Fragment);
 		//any nodes under the start node that have a confidence (occurrence > 0)
 		//is a possibility, get them
-		PriorityQueue<Candidate> retval = new PriorityQueue<>(new CandidateComparator());
-		startNode.getCandidates(retval);
+		PriorityQueue<Candidate> candidates = new PriorityQueue<>(new CandidateComparator());
+		startNode.getCandidates(candidates);
 		//priority queue puts thing in order by their confidence
 		//but ultimately we want a list - so convert to the list
-		return new ArrayList<Candidate>(retval);
+		List<Candidate> retval = new ArrayList<Candidate>();
+		while(!candidates.isEmpty())
+			retval.add(candidates.poll());
+		return retval;
 	}
 
 	@Override
 	public void train(String Passage) {
-		//TODO Remove punctuation
-		//TODO Make case consistent
+		//keep case consistent since case doesn't change the word
+		Passage = Passage.toLowerCase();
+		//remove punctuation since that's not part of the word
+		//TODO what about hyphenated words
+		Passage = Passage.replaceAll("[^a-z ]",  "");
 		for(String word : Passage.split(WORD_DELIMITER)) {
 			root.addRemainingFragment(word);
 		}
