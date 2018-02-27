@@ -25,6 +25,17 @@ public class Main {
 		
 		//no autocomplete entries example
 		printCandidateList("supercalafragalisticexpealadocious", autoc);
+		
+		//whitespace
+		autoc.train("Hello\nThis is\ta test of the whitespace system.");
+		
+		printCandidateList("Hel", autoc);
+		printCandidateList("i", autoc);
+		printCandidateList("a", autoc);
+		
+		//debatable if this is a legit input, but it provides no suggestions
+		//which is what was intended
+		printCandidateList("is\ta", autoc);	
 	}
 	
 	public static void printCandidateList(String Fragment, AutocompleteProvider a) {

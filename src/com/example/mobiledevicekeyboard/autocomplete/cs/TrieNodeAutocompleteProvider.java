@@ -10,7 +10,7 @@ import com.example.mobiledevicekeyboard.autocomplete.Candidate;
 public class TrieNodeAutocompleteProvider implements AutocompleteProvider {
 
 	private final String WORD_DELIMITER = "\\s";
-	private final String REMOVED_CHAR_REGEX = "[^\\w^\\-^ ]";
+	private final String REMOVED_CHAR_REGEX = "[^\\w^\\-^\\s]";
 	private TrieNodeCandidate root;
 	
 	public TrieNodeAutocompleteProvider() {
