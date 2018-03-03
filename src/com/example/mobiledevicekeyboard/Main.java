@@ -1,5 +1,9 @@
 package com.example.mobiledevicekeyboard;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import com.example.mobiledevicekeyboard.autocomplete.AutocompleteProvider;
 import com.example.mobiledevicekeyboard.autocomplete.Candidate;
 import com.example.mobiledevicekeyboard.autocomplete.cs.TrieNodeAutocompleteProvider;
@@ -40,10 +44,14 @@ public class Main {
 		//which is what was intended
 		printCandidateList("is\ta", autoc);	
 		
+		//start asynchronous training threads to show how training can occur
+		//simultaneously with requests
 		(new Thread(new AmericanPieTrainingFile(autoc))).start();
 		(new Thread(new YellowSubmarineTrainingFile(autoc))).start();
 		(new Thread(new AlbuquerqueTrainingFile(autoc))).start();
 		
+		/*
+		//first (automatic) example of how results change with other training threads
 		for(int i = 0; i < 10; i++) {
 			try {
 				Thread.sleep(1000);
@@ -54,6 +62,25 @@ public class Main {
 			printCandidateList("sing", autoc);
 			printCandidateList("a", autoc);
 		}
+		*/
+		
+		//get fragments from the user for testing through console input
+		//using the more complicated version that allows use within an IDE
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		String fragment = "";
+		do {
+			System.out.println("Enter a word fragment to get suggestions for. Enter nothing to exit. ");
+			try {
+				fragment = br.readLine();
+			} catch (IOException e) {
+				System.err.println("Exception reading user input fragment: " + e.getMessage());
+				e.printStackTrace();
+			}
+			if(!fragment.equals(""))
+				printCandidateList(fragment, autoc);
+		} while (!fragment.equals(""));
+		
+		System.out.println("Application Terminating");
 	}
 	
 	public static void printCandidateList(String Fragment, AutocompleteProvider a) {
