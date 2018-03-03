@@ -30,7 +30,7 @@ public class TrieNodeCandidate implements Candidate {
 	 * @param Fragment The remainder of the word that is the suffix that 
 	 * comes after the fragment represented by this node.
 	 */
-	public void addRemainingFragment(String Fragment) {
+	public synchronized void addRemainingFragment(String Fragment) {
 		//First check if there is nothing remaining, meaning the word was
 		//represented by this candidate instance. If so, then increment
 		//the occurrence count of this candidate so it's confidence is 
@@ -42,9 +42,11 @@ public class TrieNodeCandidate implements Candidate {
 		//if there are more characters to process, then they are children
 		//under this trie node. Continue down the trie.
 		char selectedChild = Fragment.charAt(0);
-		if(!children.containsKey(selectedChild))
-			children.put(selectedChild, new TrieNodeCandidate(fragment + selectedChild));
-		children.get(selectedChild).addRemainingFragment(Fragment.substring(1));
+		synchronized(children) {	//ensure we aren't reading and writing to children (or double writing to children)
+			if(!children.containsKey(selectedChild))
+				children.put(selectedChild, new TrieNodeCandidate(fragment + selectedChild));
+			children.get(selectedChild).addRemainingFragment(Fragment.substring(1));
+		}
 	}
 	
 	/**
@@ -57,11 +59,13 @@ public class TrieNodeCandidate implements Candidate {
 		//if there's nothing more to the fragment, then this node is where
 		//we start finding candidates from
 		if(Fragment.length() == 0) return this;
-		//If the trie doesn't have the next character in the fragment, then we have
-		//nothing we can guess (no candidates) so return null
-		if(!children.containsKey(Fragment.charAt(0))) return null;
-		//otherwise continue down the trie
-		return children.get(Fragment.charAt(0)).getStartNode(Fragment.substring(1));
+		synchronized(children) {
+			//If the trie doesn't have the next character in the fragment, then we have
+			//nothing we can guess (no candidates) so return null
+			if(!children.containsKey(Fragment.charAt(0))) return null;
+			//otherwise continue down the trie
+			return children.get(Fragment.charAt(0)).getStartNode(Fragment.substring(1));
+		}
 	}
 	
 	public void getCandidates(PriorityQueue<Candidate> PreviousCandidates) {
@@ -71,8 +75,10 @@ public class TrieNodeCandidate implements Candidate {
 		
 		//recurse down all children so they can add themselves if necessary
 		//and they can add their own children as well
-		for(TrieNodeCandidate child : children.values()) {
-			child.getCandidates(PreviousCandidates);
+		synchronized(children) {
+			for(TrieNodeCandidate child : children.values()) {
+				child.getCandidates(PreviousCandidates);
+			}
 		}
 		
 		//PreviousCandidates now has everything for this node

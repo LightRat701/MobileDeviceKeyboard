@@ -3,6 +3,9 @@ package com.example.mobiledevicekeyboard;
 import com.example.mobiledevicekeyboard.autocomplete.AutocompleteProvider;
 import com.example.mobiledevicekeyboard.autocomplete.Candidate;
 import com.example.mobiledevicekeyboard.autocomplete.cs.TrieNodeAutocompleteProvider;
+import com.example.mobiledevicekeyboard.autocomplete.training.AlbuquerqueTrainingFile;
+import com.example.mobiledevicekeyboard.autocomplete.training.AmericanPieTrainingFile;
+import com.example.mobiledevicekeyboard.autocomplete.training.YellowSubmarineTrainingFile;
 
 public class Main {
 
@@ -36,6 +39,21 @@ public class Main {
 		//debatable if this is a legit input, but it provides no suggestions
 		//which is what was intended
 		printCandidateList("is\ta", autoc);	
+		
+		(new Thread(new AmericanPieTrainingFile(autoc))).start();
+		(new Thread(new YellowSubmarineTrainingFile(autoc))).start();
+		(new Thread(new AlbuquerqueTrainingFile(autoc))).start();
+		
+		for(int i = 0; i < 10; i++) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				//don't care if we are interrupted because of quit
+			}
+			printCandidateList("th", autoc);
+			printCandidateList("sing", autoc);
+			printCandidateList("a", autoc);
+		}
 	}
 	
 	public static void printCandidateList(String Fragment, AutocompleteProvider a) {
