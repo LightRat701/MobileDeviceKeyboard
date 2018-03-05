@@ -1,5 +1,6 @@
 package com.example.mobiledevicekeyboard.autocomplete.cs;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -7,10 +8,11 @@ import java.util.PriorityQueue;
 import com.example.mobiledevicekeyboard.autocomplete.AutocompleteProvider;
 import com.example.mobiledevicekeyboard.autocomplete.Candidate;
 
-public class TrieNodeAutocompleteProvider implements AutocompleteProvider {
+public class TrieNodeAutocompleteProvider implements AutocompleteProvider, Serializable {
 
-	private final String WORD_DELIMITER = "\\s";
-	private final String REMOVED_CHAR_REGEX = "[^\\w^\\-^\\s^']";
+	private static final long serialVersionUID = 1L;
+	private transient final String WORD_DELIMITER = "\\s";
+	private transient final String REMOVED_CHAR_REGEX = "[^\\w^\\-^\\s^']";
 	private TrieNodeCandidate root;
 	
 	public TrieNodeAutocompleteProvider() {
@@ -44,11 +46,17 @@ public class TrieNodeAutocompleteProvider implements AutocompleteProvider {
 		//keep case consistent since case doesn't change the word
 		Passage = Passage.toLowerCase();
 		//remove punctuation since that's not part of the word
-		//TODO what about hyphenated words
 		Passage = Passage.replaceAll(REMOVED_CHAR_REGEX,  "");
 		for(String word : Passage.split(WORD_DELIMITER)) {
 			root.addRemainingFragment(word);
 		}
 	}
 
+	public void setRoot(TrieNodeCandidate Root) {
+		root = Root;
+	}
+	
+	public TrieNodeCandidate getRoot() {
+		return root;
+	}
 }

@@ -1,8 +1,12 @@
 package com.example.mobiledevicekeyboard;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import com.example.mobiledevicekeyboard.autocomplete.AutocompleteProvider;
 import com.example.mobiledevicekeyboard.autocomplete.Candidate;
@@ -13,15 +17,22 @@ import com.example.mobiledevicekeyboard.autocomplete.training.YellowSubmarineTra
 
 public class Main {
 
+	public static final String STORE_FILE = "dictionary.dat";
+	
 	public static void main(String[] args) {
-		TrieNodeAutocompleteProvider autoc = new TrieNodeAutocompleteProvider();
+		AutocompleteProvider autoc;
+		autoc = LoadAutocompleteEntries();
+		if(autoc == null)
+			autoc = new TrieNodeAutocompleteProvider(); 
 		
 		//provided example
-		autoc.train("The third thing that I need to tell you is that this thing does not think thoroughly.");
+		//autoc.train("The third thing that I need to tell you is that this thing does not think thoroughly.");
 
 		printCandidateList("thi", autoc);
 		printCandidateList("nee", autoc);
 		printCandidateList("th", autoc);
+		
+		SaveAutocompleteEntries(autoc);
 		
 		//hyphen and numbers example
 		autoc.train("I have 15 co-workers and 10 are in Colorado");
@@ -91,4 +102,47 @@ public class Main {
 		System.out.println("___________");
 	}
 
+	public static void SaveAutocompleteEntries(AutocompleteProvider autoc) {
+		ObjectOutputStream oos = null;
+		try {
+			oos = new ObjectOutputStream(
+					new FileOutputStream(STORE_FILE));
+			oos.writeObject(autoc);
+		} catch (IOException e) {
+			System.err.println("Error saving autocomplete suggestions." + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			if(oos != null)
+				try {
+					oos.close();
+				} catch (IOException e) {
+					//not sure what to do with this
+					//only thing I can think of is this fails if it's already closed
+					//in which case we don't need to do anything more
+				}
+		}
+	}
+	
+	public static AutocompleteProvider LoadAutocompleteEntries() {
+		AutocompleteProvider retval = null;
+		ObjectInputStream ois = null;
+		try {
+			ois = new ObjectInputStream(
+					new FileInputStream(STORE_FILE));
+			retval = (TrieNodeAutocompleteProvider) ois.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			//if we can't find the file, then we're assuming it doesn't exist
+		} finally {
+			if(ois != null) {
+				try {
+					ois.close();
+				} catch (IOException e) {
+					//not sure what to do with this
+					//only thing I can think of is this fails if it's already closed
+					//in which case we don't need to do anything more
+				}
+			}
+		}
+		return retval;
+	}
 }

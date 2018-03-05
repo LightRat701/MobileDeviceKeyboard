@@ -1,16 +1,18 @@
 package com.example.mobiledevicekeyboard.autocomplete.cs;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
 import com.example.mobiledevicekeyboard.autocomplete.Candidate;
 
-public class TrieNodeCandidate implements Candidate {
+public class TrieNodeCandidate implements Candidate, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private final String fragment;
-	private int occurrences;
-	private Map<Character, TrieNodeCandidate> children;
+	private volatile int occurrences;
+	private volatile Map<Character, TrieNodeCandidate> children;
 	
 	/**
 	 * The node is built with the fragment of the word so far. Fragments and
