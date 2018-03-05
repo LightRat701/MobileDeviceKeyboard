@@ -70,6 +70,11 @@ public class TrieNodeCandidate implements Candidate, Serializable {
 		}
 	}
 	
+	/**
+	 * Get all words under this node. These words are considered candidates for
+	 * automatic completion.
+	 * @param PreviousCandidates A list of all candidates under this node.
+	 */
 	public void getCandidates(PriorityQueue<Candidate> PreviousCandidates) {
 		//first see if this node is a candidate
 		//if so, place it in the list of candidates

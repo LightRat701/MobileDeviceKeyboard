@@ -21,17 +21,26 @@ public class Main {
 	
 	public static void main(String[] args) {
 		AutocompleteProvider autoc;
+		//try to load the autocomplete entries from an existing file
+		//this will load faster than training all of the documents/phrases each time
+		//if the file doesn't exist, then we have a blank autocomplete dictionary
 		autoc = LoadAutocompleteEntries();
 		if(autoc == null)
 			autoc = new TrieNodeAutocompleteProvider(); 
 		
 		//provided example
+		//this is now loaded up in the save file
+		//so training this example again will just double these words in the candidate list 
 		//autoc.train("The third thing that I need to tell you is that this thing does not think thoroughly.");
 
+		//Demonstrate the provided example
 		printCandidateList("thi", autoc);
 		printCandidateList("nee", autoc);
 		printCandidateList("th", autoc);
 		
+		//overwrite the existing dictionary with the current dictionary
+		//since we haven't trained anything more, this ultimately isn't causing anything 
+		//different to occur between runs
 		SaveAutocompleteEntries(autoc);
 		
 		//hyphen and numbers example
@@ -94,6 +103,11 @@ public class Main {
 		System.out.println("Application Terminating");
 	}
 	
+	/**
+	 * Provide single line method of outputting the results
+	 * @param Fragment What the user has requested so far.
+	 * @param a The data structure containing the suggestions.
+	 */
 	public static void printCandidateList(String Fragment, AutocompleteProvider a) {
 		System.out.println("Candidates for " + Fragment);
 		for(Candidate c : a.getWords(Fragment)) {
@@ -102,9 +116,15 @@ public class Main {
 		System.out.println("___________");
 	}
 
+	/**
+	 * Saves the list of suggestions for fragments to a file for use in future runs.
+	 * @param autoc The data structure containing the suggestions. Must implement Serializable.
+	 */
 	public static void SaveAutocompleteEntries(AutocompleteProvider autoc) {
 		ObjectOutputStream oos = null;
 		try {
+			//AutocompleteProvider and encapsulated classes must implement serializable
+			//for this to work
 			oos = new ObjectOutputStream(
 					new FileOutputStream(STORE_FILE));
 			oos.writeObject(autoc);
@@ -123,6 +143,12 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Loads the list of suggestions for fragments from a file for use in this run.
+	 * Currently set to use the TrieNodeAutocompleteProvider implementation, which 
+	 * implements serializable, which allows the data structure to be formed.
+	 * @return A TrieNodeAutocompleteProvider containing suggestions for word fragments.
+	 */
 	public static AutocompleteProvider LoadAutocompleteEntries() {
 		AutocompleteProvider retval = null;
 		ObjectInputStream ois = null;

@@ -51,12 +51,4 @@ public class TrieNodeAutocompleteProvider implements AutocompleteProvider, Seria
 			root.addRemainingFragment(word);
 		}
 	}
-
-	public void setRoot(TrieNodeCandidate Root) {
-		root = Root;
-	}
-	
-	public TrieNodeCandidate getRoot() {
-		return root;
-	}
 }
